@@ -1,6 +1,7 @@
 import axios from "axios";
 import PortfolioCard from "../../components/portfolios/PortfolioCard";
 import Link from "next/link";
+import {useState} from "react";
 
 const fetchPortfolios = async () => {
     const query = `
@@ -23,7 +24,9 @@ const fetchPortfolios = async () => {
     return data.data.data.portfolios
 }
 
-const Portfolios = ({portfolios}) => {
+const Portfolios = ({data}) => {
+
+    const [portfolios, setPortfolios] = useState(data)
 
     const portfolioCards = portfolios.map(portfolio => {
             return (
@@ -38,6 +41,37 @@ const Portfolios = ({portfolios}) => {
         }
     )
 
+    async function createPortfolio() {
+        const query = `
+            mutation CreatePortfolio {
+                createPortfolio ( input: {
+                    title: "title"
+                    company: "company"
+                    companyWebsite: "companyWebsite"
+                    location: "location"
+                    jobTitle: "jobTitle"
+                    description: "description"
+                    startDate: "startDate"
+                    endDate: "endDate"                
+                }) 
+                {
+                  id
+                title
+                company
+                companyWebsite
+                location
+                jobTitle
+                description
+                startDate
+                endDate
+                }
+            }
+        `
+
+        const data = await axios.post('http://localhost:3000/graphql', {query})
+        setPortfolios([...portfolios, data.data.data.createPortfolio])
+    }
+
     return <>
         {/* HOME PAGE STARTS */}
         <section className="section-title">
@@ -46,6 +80,7 @@ const Portfolios = ({portfolios}) => {
                     <h1>Portfolios</h1>
                 </div>
             </div>
+            <button className="btn btn-primary" onClick={createPortfolio}>Create Portfolio</button>
         </section>
         <section className="pb-5">
             <div className="row">
@@ -58,7 +93,7 @@ const Portfolios = ({portfolios}) => {
 
 Portfolios.getInitialProps = async () => {
     const portfolios = await fetchPortfolios()
-    return {portfolios}
+    return {data: portfolios}
 }
 
 

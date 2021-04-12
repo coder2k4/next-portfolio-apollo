@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const PortfolioDetail = ({portfolio}) => {
-    console.log(portfolio)
+
+
     return (
         <div className="portfolio-detail">
             <div className="container">

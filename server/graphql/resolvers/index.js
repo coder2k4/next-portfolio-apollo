@@ -1,4 +1,4 @@
-const portfolios = [
+let portfolios = [
     {
         id: 'aaa',
         title: 'Job in Netcentric',
@@ -34,15 +34,30 @@ const portfolios = [
     }
 ]
 
-exports.portfolioResolvers = {
-    portfolio: (args) => portfolios.find(portfolio => portfolio.id == args.id),
+exports.portfolioQueryResolvers = {
+    portfolio: (root, args) => portfolios.find(portfolio => portfolio.id == args.id),
     portfolios: () => portfolios,
-    createPortfolio: ({input}) => {
-        console.log(input)
+}
+
+exports.portfolioMutationResolvers = {
+    createPortfolio: (root, {input}) => {
+
         const _id = require('crypto').randomBytes(10).toString('hex')
         const newPortfolio = {...input}
         newPortfolio.id = _id
         portfolios.push(newPortfolio)
         return newPortfolio
+    },
+
+    updatePortfolio: (root, {id, input}) => {
+        const index = portfolios.findIndex(p => p.id === id)
+        portfolios[index] = {...portfolios[index], ...input}
+        return portfolios[index]
+    },
+
+    removePortfolio: (root, {id}) => {
+        const newPorfolio = portfolios.filter(p => p.id!==id)
+        portfolios = newPorfolio
+        return 'deleted'
     }
 }
