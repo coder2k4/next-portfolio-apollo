@@ -1,7 +1,13 @@
-import axios from "axios";
+import {useLazyQuery, useQuery} from "@apollo/client";
+import {GET_PORTFOLIO} from "../../apollo/queries";
+import {useEffect, useState} from "react";
+import withApollo from "../../hoc/withApollo";
+import {getDataFromTree} from "@apollo/client/react/ssr";
 
-const PortfolioDetail = ({portfolio}) => {
+const PortfolioDetail = ({query}) => {
 
+    const { data } = useQuery(GET_PORTFOLIO, {variables: {id: query.id}});
+    const portfolio = data && data.portfolio || {};
 
     return (
         <div className="portfolio-detail">
@@ -37,7 +43,7 @@ const PortfolioDetail = ({portfolio}) => {
                     </div>
 
                     <div className="col-md-12">
-                        <hr />
+                        <hr/>
                         <h4 className="title">Description</h4>
                         <p>{portfolio.description}</p>
                     </div>
@@ -48,60 +54,8 @@ const PortfolioDetail = ({portfolio}) => {
     );
 };
 
-const getPortfolio = (id) =>  {
-
-    const query = `
-            query Portfolio($id: ID) {
-              portfolio (id: $id) {
-                id
-                title
-                company
-                companyWebsite
-                location
-                jobTitle
-                description
-                startDate
-                endDate
-              }
-            }
-        `
-
-    const variables = { id }
-
-    const portfolio = axios.post('http://localhost:3000/graphql', {query, variables})
-        .then(({data : graph}) => graph.data)
-        .then(data => data.portfolio)
-
-    return portfolio
+PortfolioDetail.getInitialProps = ({query}) => {
+    return {query}
 }
 
-
-PortfolioDetail.getInitialProps = async ({query}) => {
-    const portfolio = await getPortfolio(query.id)
-    return {portfolio}
-}
-
-
-export default PortfolioDetail;
-
-
-
-// import React, {Component} from 'react';
-//
-// class PortfolioDetail extends Component {
-//
-//     static getInitialProps({query}) {
-//         return {query}
-//     }
-//
-//     render() {
-//         const id = this.props.query.id
-//         return (
-//             <div>
-//                 im on detail page: {id}
-//             </div>
-//         );
-//     }
-// }
-//
-// export default PortfolioDetail;
+export default withApollo(PortfolioDetail, {getDataFromTree});

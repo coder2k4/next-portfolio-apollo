@@ -1,100 +1,75 @@
-import axios from "axios";
 import PortfolioCard from "../../components/portfolios/PortfolioCard";
 import Link from "next/link";
-import {useState} from "react";
+import withApollo from "../../hoc/withApollo";
+import {getDataFromTree} from "@apollo/client/react/ssr";
+import {useCreatePortfolio, useDeletePortfolio, useGetPortfolios, useUpdatePortfolio} from "../../apollo/actions";
 
-const fetchPortfolios = async () => {
-    const query = `
-            query Portfolios {
-              portfolios {
-                id
-                title
-                company
-                companyWebsite
-                location
-                jobTitle
-                description
-                startDate
-                endDate
-              }
-            }
-        `
 
-    const data = await axios.post('http://localhost:3000/graphql', {query})
-    return data.data.data.portfolios
-}
+const Portfolios = () => {
+    const { data } = useGetPortfolios();
+    const [ updatePortfolio ] = useUpdatePortfolio();
+    const [ deletePortfolio ] = useDeletePortfolio();
+    const [ createPortfolio ] = useCreatePortfolio();
 
-const Portfolios = ({data}) => {
-
-    const [portfolios, setPortfolios] = useState(data)
-
-    const portfolioCards = portfolios.map(portfolio => {
-            return (
-                <div className="col-md-4" key={portfolio.id}>
-                    <Link href="/portfolios/[id]" as={`/portfolios/${portfolio.id}`}>
-                        <a className="card-link">
-                            <PortfolioCard portfolio={portfolio}/>
-                        </a>
-                    </Link>
+    const portfolios = data && data.portfolios || [];
+    return (
+        <>
+            <section className="section-title">
+                <div className="px-2">
+                    <div className="pt-5 pb-4">
+                        <h1>Portfolios</h1>
+                    </div>
                 </div>
-            )
-        }
+                <button
+                    onClick={createPortfolio}
+                    className="btn btn-primary">Create Portfolio</button>
+            </section>
+            <section className="pb-5">
+                <div className="row">
+                    { portfolios.map(portfolio =>
+                        <div key={portfolio._id} className="col-md-4">
+                            <Link
+                                href='/portfolios/[id]'
+                                as={`/portfolios/${portfolio._id}`}>
+                                <a className="card-link">
+                                    <PortfolioCard portfolio={portfolio} />
+                                </a>
+                            </Link>
+                            <button
+                                className="btn btn-warning"
+                                onClick={() => updatePortfolio({variables: {id: portfolio._id}})}>Update Portfolio</button>
+                            <button
+                                onClick={() => deletePortfolio({variables: {id: portfolio._id}})}
+                                className="btn btn-danger">
+                                Delete Portfolio
+                            </button>
+                        </div>
+                    )
+                    }
+                </div>
+            </section>
+        </>
     )
-
-    async function createPortfolio() {
-        const query = `
-            mutation CreatePortfolio {
-                createPortfolio ( input: {
-                    title: "title"
-                    company: "company"
-                    companyWebsite: "companyWebsite"
-                    location: "location"
-                    jobTitle: "jobTitle"
-                    description: "description"
-                    startDate: "startDate"
-                    endDate: "endDate"                
-                }) 
-                {
-                  id
-                title
-                company
-                companyWebsite
-                location
-                jobTitle
-                description
-                startDate
-                endDate
-                }
-            }
-        `
-
-        const data = await axios.post('http://localhost:3000/graphql', {query})
-        setPortfolios([...portfolios, data.data.data.createPortfolio])
-    }
-
-    return <>
-        {/* HOME PAGE STARTS */}
-        <section className="section-title">
-            <div className="px-2">
-                <div className="pt-5 pb-4">
-                    <h1>Portfolios</h1>
-                </div>
-            </div>
-            <button className="btn btn-primary" onClick={createPortfolio}>Create Portfolio</button>
-        </section>
-        <section className="pb-5">
-            <div className="row">
-                {portfolioCards}
-            </div>
-        </section>
-        <a href="" className="btn btn-main bg-blue ttu">See More Portfolios</a>
-    </>
 }
 
-Portfolios.getInitialProps = async () => {
-    const portfolios = await fetchPortfolios()
-    return {data: portfolios}
-}
+// Portfolios.getInitialProps = async () => {
+//     const portfolios = await fetchPortfolios()
+//     return {data: portfolios}
+// }
+//
+// export async function getServerSideProps(){
+//     const { data } = await client.query({query: GET_PORTFOLIOS})
+//
+//     const testServerSide = () => {
+//         console.log('im on server query')
+//     }
+//     return {
+//         props: {
+//             portfolios: data.portfolios,
+//             testServerSide
+//         },
+//     }
+// }
 
 
-export default Portfolios
+export default withApollo(Portfolios, {getDataFromTree})
