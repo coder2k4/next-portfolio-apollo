@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "nodemon server",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "populateDb": "node server/database/fakeDB/populate.js"
   },
   "dependencies": {
     "@apollo/client": "^3.3.14",

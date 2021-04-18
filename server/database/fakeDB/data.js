@@ -1,7 +1,6 @@
 const data = {
     portfolios: [
         {
-            _id: "sad87daasdhjdjsb",
             title: 'Job in Netcentric',
             company: 'Netcentric',
             companyWebsite: 'www.google.com',
@@ -12,7 +11,6 @@ const data = {
             endDate: '01/01/2016'
         },
         {
-            _id: "da789ad1",
             title: 'Job in Siemens',
             company: 'Siemens',
             companyWebsite: 'www.google.com',
@@ -23,7 +21,6 @@ const data = {
             endDate: '01/01/2013'
         },
         {
-            _id: "sadcxv9",
             title: 'Work in USA',
             company: 'WhoKnows',
             companyWebsite: 'www.google.com',
@@ -36,30 +33,4 @@ const data = {
     ]
 }
 
-
-const Portfolio = require("../../database/models/portfolio")
-
-exports.portfolioQueries = {
-    hello: () => {
-        return 'Hello World!'
-    },
-    portfolio: (root, {id}) => {
-        return Portfolio.findById(id)
-    },
-    portfolios: () => {
-        return Portfolio.find({})
-    }
-}
-
-exports.portfolioMutations = {
-    createPortfolio: async (root, {input}) => {
-        return await Portfolio.create(input);
-    },
-    updatePortfolio: (root, {id, input}) => {
-        return Portfolio.findOneAndUpdate({_id: id}, input)
-    },
-    deletePortfolio: async (root, {id}) => {
-        const deletedPortfolio = await Portfolio.findByIdAndDelete(id);
-        return deletedPortfolio._id;
-    }
-}
+module.exports = data

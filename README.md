@@ -1,3 +1,29 @@
+- Создайте файл с подключение к вашей базе
+
+```javascript
+//server/config/dev.js
+// name
+// password
+// youDBname
+module.exports = {
+    DB_URI : 'mongodb+srv://name:password@cluster0.ayokz.mongodb.net/youDBname?retryWrites=true&w=majority'
+}
+```
+
+
+- Для миграции фейковых данных используйте команду
+
+```bash
+node server/database/fakeDB/populate.js
+```
+
+
+
+
+
+
+
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
