@@ -1,10 +1,10 @@
+const {gql} = require("@apollo/client");
 const Portfolio = require("./models/Portfolio");
 const portfolio = require("../database/models/portfolio");
+const User = require("./models/User");
 const {ApolloServer} = require("apollo-server-express");
-const {portfolioMutations} = require("./resolvers");
-const {portfolioQueries} = require("./resolvers");
+const {portfolioMutations, userMutations, portfolioQueries} = require("./resolvers");
 const {portfolioTypes} = require("./types");
-const {gql} = require("@apollo/client");
 
 
 exports.createApolloServer = () => {
@@ -22,6 +22,10 @@ exports.createApolloServer = () => {
         createPortfolio(input: PortfolioInput): Portfolio
         updatePortfolio(id: ID, input: PortfolioInput): Portfolio
         deletePortfolio(id: ID): ID
+        
+        signIn: String
+        signUp: String
+        signOut: String        
       }       
     `
 
@@ -30,7 +34,8 @@ exports.createApolloServer = () => {
             ...portfolioQueries
         },
         Mutation: {
-            ...portfolioMutations
+            ...portfolioMutations,
+            ...userMutations,
         }
 
     }
@@ -40,7 +45,8 @@ exports.createApolloServer = () => {
         resolvers,
         context: () => ({
             models: {
-                Portfolio: new Portfolio(portfolio)
+                Portfolio: new Portfolio(portfolio),
+                User: new User()
             }
         })
     })
