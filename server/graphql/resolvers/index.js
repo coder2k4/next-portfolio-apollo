@@ -1,65 +1,25 @@
-const data = {
-    portfolios: [
-        {
-            _id: "sad87daasdhjdjsb",
-            title: 'Job in Netcentric',
-            company: 'Netcentric',
-            companyWebsite: 'www.google.com',
-            location: 'Spain, Barcelona',
-            jobTitle: 'Engineer',
-            description: 'Doing something, programing....',
-            startDate: '01/01/2014',
-            endDate: '01/01/2016'
-        },
-        {
-            _id: "da789ad1",
-            title: 'Job in Siemens',
-            company: 'Siemens',
-            companyWebsite: 'www.google.com',
-            location: 'Slovakia, Kosice',
-            jobTitle: 'Software Engineer',
-            description: 'Responsoble for parsing framework for JSON medical data.',
-            startDate: '01/01/2011',
-            endDate: '01/01/2013'
-        },
-        {
-            _id: "sadcxv9",
-            title: 'Work in USA',
-            company: 'WhoKnows',
-            companyWebsite: 'www.google.com',
-            location: 'USA, Montana',
-            jobTitle: 'Housekeeping',
-            description: 'So much responsibility....Overloaaaaaad',
-            startDate: '01/01/2010',
-            endDate: '01/01/2011'
-        }
-    ]
-}
-
-
-const Portfolio = require("../../database/models/portfolio")
-
 exports.portfolioQueries = {
     hello: () => {
         return 'Hello World!'
     },
-    portfolio: (root, {id}) => {
-        return Portfolio.findById(id)
+    portfolio: (root, {id}, ctx) => {
+        return ctx.models.Portfolio.getById(id);
     },
-    portfolios: () => {
-        return Portfolio.find({})
+    portfolios: (root, args, ctx) => {
+        console.log(ctx.models.Portfolio.getAll())
+        return ctx.models.Portfolio.getAll();
     }
 }
 
 exports.portfolioMutations = {
-    createPortfolio: async (root, {input}) => {
-        return await Portfolio.create(input);
+    createPortfolio: async (root, {input}, ctx) => {
+        return await ctx.models.Portfolio.create(input);
     },
-    updatePortfolio: (root, {id, input}) => {
-        return Portfolio.findOneAndUpdate({_id: id}, input)
+    updatePortfolio: (root, {id, input}, ctx) => {
+        return ctx.models.Portfolio.findAndUpdate(id, input);
     },
-    deletePortfolio: async (root, {id}) => {
-        const deletedPortfolio = await Portfolio.findByIdAndDelete(id);
+    deletePortfolio: async (root, {id} , ctx) => {
+        const deletedPortfolio = await ctx.models.Portfolio.findAndDelete(id);
         return deletedPortfolio._id;
     }
 }
