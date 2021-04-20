@@ -1,53 +1,55 @@
-const {gql} = require("@apollo/client");
-const Portfolio = require("./models/Portfolio");
-const portfolio = require("../database/models/portfolio");
-const User = require("./models/User");
-const {ApolloServer} = require("apollo-server-express");
-const {portfolioMutations, userMutations, portfolioQueries} = require("./resolvers");
-const {portfolioTypes} = require("./types");
+const mongoose = require('mongoose');
+const { ApolloServer, gql } = require('apollo-server-express');
 
+const {
+  portfolioQueries,
+  portfolioMutations,
+  userMutations } = require('./resolvers');
+const { portfolioTypes, userTypes } = require('./types');
+
+const Portfolio = require('./models/Portfolio');
+const User = require('./models/User');
 
 exports.createApolloServer = () => {
+  // Construct a schema, using GRAPHQL schema language
+  const typeDefs = gql(`
+  ${portfolioTypes}
+  ${userTypes}
+  
+  
+  type Query {
+    portfolio(id: ID): Portfolio
+    portfolios: [Portfolio]
+  }
+  type Mutation {
+    createPortfolio(input: PortfolioInput): Portfolio
+    updatePortfolio(id: ID, input: PortfolioInput): Portfolio
+    deletePortfolio(id: ID): ID
+    signIn: String
+    signUp(input: SignUpInput): String
+    signOut: String
+  }`);
 
-    const typeDefs = gql`
-        ${portfolioTypes}
-
-      type Query {
-        hello: String
-        portfolio(id: ID): Portfolio
-        portfolios: [Portfolio]
-      }
-
-      type Mutation {
-        createPortfolio(input: PortfolioInput): Portfolio
-        updatePortfolio(id: ID, input: PortfolioInput): Portfolio
-        deletePortfolio(id: ID): ID
-        
-        signIn: String
-        signUp: String
-        signOut: String        
-      }       
-    `
-
-    const resolvers = {
-        Query: {
-            ...portfolioQueries
-        },
-        Mutation: {
-            ...portfolioMutations,
-            ...userMutations,
-        }
-
+  // The root provides a resolver for each API endpoint
+  const resolvers = {
+    Query: {
+      ...portfolioQueries
+    },
+    Mutation: {
+      ...portfolioMutations,
+      ...userMutations
     }
+  }
 
-    return new ApolloServer({
-        typeDefs,
-        resolvers,
-        context: () => ({
-            models: {
-                Portfolio: new Portfolio(portfolio),
-                User: new User()
-            }
-        })
+  const apolloServer = new ApolloServer({
+    typeDefs, resolvers,
+    context: () => ({
+      models: {
+        Portfolio: new Portfolio(mongoose.model('Portfolio')),
+        User: new User(mongoose.model('User'))
+      }
     })
+  })
+
+  return apolloServer;
 }

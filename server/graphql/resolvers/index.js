@@ -1,7 +1,4 @@
 exports.portfolioQueries = {
-    hello: () => {
-        return 'Hello World!'
-    },
     portfolio: (root, {id}, ctx) => {
         return ctx.models.Portfolio.getById(id);
     },
@@ -24,11 +21,12 @@ exports.portfolioMutations = {
 }
 
 exports.userMutations = {
+    signUp: (root, {input}, ctx) => {
+        const registerUser = ctx.models.User.signIn(input);
+        return registerUser._id
+    },
     signIn: (root, args, ctx) => {
         return ctx.models.User.signIn();
-    },
-    signUp: (root, args, ctx) => {
-        return ctx.models.User.signUp();
     },
     signOut: (root, args, ctx) => {
         return ctx.models.User.signOut();
